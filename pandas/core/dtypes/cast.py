@@ -1918,7 +1918,13 @@ def np_can_hold_element(dtype: np.dtype, element: Any) -> Any:
                         # i.e. there are pd.NA elements
                         raise LossySetitemError
                 return element
+            # GH 57338
+            # Check boolean array set as object type
+            if tipo.kind == "O" and isinstance(element, np.ndarray):
+                if all(lib.is_bool(e) for e in element):
+                    return element.astype("bool")
             raise LossySetitemError
+
         if lib.is_bool(element):
             return element
         raise LossySetitemError
